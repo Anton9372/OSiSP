@@ -15,4 +15,8 @@
     For example: 
     ```bash
     ./parent /home/user/smth/other/vars.txt
+<<<<<<< HEAD
     ```
+=======
+    ```
+>>>>>>> 82998a35313725c307415f27fbb728497cf94d67
