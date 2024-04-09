@@ -15,7 +15,6 @@ typedef struct nodeRing {
     struct nodeRing* next;
     struct nodeRing* prev;
     u_int8_t message[LEN_MESSAGE];
-    bool flagIsBusy;
 }nodeRing;
 
 typedef struct ringSharedBuffer {

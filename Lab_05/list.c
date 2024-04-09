@@ -1,46 +1,46 @@
 #include "list.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <stdbool.h>
 
-nodeList* constructorList(pid_t pid, char role) {
+nodeList* constructorList(pthread_t id, char role) {
     nodeList* val = (nodeList*)malloc(1 * sizeof(nodeList));
     val->next = NULL;
-    val->pid = pid;
-    val->procRole = role;
+    val->pthreadId = id;
+    val->pthreadRole = role;
     return val;
 }
 
-void pushList(nodeList** head, pid_t pid, char role) {
+void pushList(nodeList** head, pthread_t id, char role) {
     if (head == NULL) {
         exit(-1);
     }
     if (*head == NULL) {
-        *head = constructorList(pid, role);
+        *head = constructorList(id, role);
         return;
     }
     nodeList* current = *head;
     while(current->next != NULL) {
         current = current->next;
     }
-    current->next = constructorList(pid, role);
+    current->next = constructorList(id, role);
 }
 
 void displayList(const nodeList* head) {
-    if (head != NULL) {
-        printf("Parent PID: %d\n", head->pid);
-    } else {
+    size_t i = 1;
+    if (head == NULL) {
+        printf("List is empty.\n");
         return;
     }
-    if (head->next != NULL) {
+    while(head != NULL) {
+        printf("Pthread_%lu_%c id = %lu\n", i++, head->pthreadRole, head->pthreadId);
         head = head->next;
-        size_t i = 1;
-        while(head != NULL) {
-            printf("Child_%lu_%c with PID: %d\n", i++, head->procRole, head->pid);
-            head = head->next;
-        }
     }
 }
 
-pid_t popList(nodeList** head) {
+pthread_t popList(nodeList** head) {
     if (head == NULL) {
         exit(-1);
     }
@@ -53,21 +53,22 @@ pid_t popList(nodeList** head) {
         prev = current;
         current = current->next;
     }
-    pid_t pid = current->pid;
+    pthread_t id = current->pthreadId;
     free(current);
     if (prev == NULL) {
         *head = NULL;
     } else {
         prev->next = NULL;
     }
-    return pid;
+    return id;
 }
 
-pid_t eraseList(nodeList** head, size_t positionNum) {
+pthread_t eraseList(nodeList** head, size_t positionNum) {
     if (head == NULL) {
         exit(-2);
     }
     if (*head == NULL) {
+        printf("List is empty.\n");
         return -1;
     }
     nodeList* prev = NULL;
@@ -80,21 +81,25 @@ pid_t eraseList(nodeList** head, size_t positionNum) {
     }
     if (i != positionNum) {
         printf("There is no element with this number.");
-        return -1;
+        return false;
     }
-    pid_t pid = current->pid;
     if (prev == NULL) {
-        *head = (*head)->next;
+        *head = (*head)->next;  
     } else {
         prev->next = current->next;
     }
+    pthread_t id = current->pthreadId;
     free(current);
-    return pid;
+    return id;
 }
 
 void clearList(nodeList** head) {
     if (head == NULL) {
         exit(-3);
+    }
+    if (*head == NULL) {
+        printf("List is already empty.");
+        return;
     }
     nodeList* current = *head;
     while (current != NULL) {

@@ -6,7 +6,6 @@ nodeRing* constructorNode() {
     temp->shmidCurr = shmid;
     temp->next = temp;
     temp->prev = temp;
-    temp->flagIsBusy = false;
     return temp;
 }
 
@@ -56,16 +55,11 @@ void addMessage(ringSharedBuffer* ring, const u_int8_t* message) {
         return;
     }
     nodeRing* curr = ring->tail;
-    if (curr->flagIsBusy == true) {
-        printf("No free places.\n");
-        return;
-    }
 
     for (size_t i = 0; i < LEN_MESSAGE; ++i) {
         curr->message[i] = message[i];
     }
-        
-    curr->flagIsBusy = true;
+
     ring->tail = curr->next;
     ring->produced++;
 }
@@ -80,12 +74,7 @@ u_int8_t* extractMessage(ringSharedBuffer* ring) {
         return NULL;
     }
     nodeRing* curr = ring->head;
-    if (curr->flagIsBusy == false) {
-        printf("No messages to retrieve.\n");
-        return NULL;
-    }
 
-    curr->flagIsBusy = false;
     u_int8_t* message = (u_int8_t*)calloc(LEN_MESSAGE, sizeof(u_int8_t));
 
     for (size_t i = 0; i < LEN_MESSAGE; ++i) {
@@ -126,8 +115,7 @@ void displayRing(ringSharedBuffer* ring) {
     printf("tail : %d\n", ring->tail->shmidCurr);
     nodeRing* curr = ring->head;
     do{
-        printf("(curr=%d", curr->shmidCurr);
-        printf("flag%d)", curr->flagIsBusy);
+        printf("(curr=%d)", curr->shmidCurr);
         printf("-->next=%d", curr->next->shmidCurr);
         curr = curr->next;
     }while(curr != ring->head);
